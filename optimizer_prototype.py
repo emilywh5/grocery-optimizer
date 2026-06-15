@@ -23,14 +23,10 @@ prices = {
 prob = pulp.LpProblem("Grocery_Optimization", pulp.LpMinimize)
 
 # Decision Variables: x[i, s] is 1 if I buy item 'i' at store 's', 0 otherwise
-x = pulp.LpVariable.dicts("buy", 
-                          ((i, s) for i in items for s in stores), 
-                          cat='Binary')
+x = pulp.LpVariable.dicts("buy", ((i, s) for i in items for s in stores), cat='Binary')
 
 # Activation Variables: y[s] is 1 if I visit store 's', 0 otherwise
-y = pulp.LpVariable.dicts("visit", 
-                          stores, 
-                          cat='Binary')
+y = pulp.LpVariable.dicts("visit", stores, cat='Binary')
 
 # verify for constraints 
 for i in items:
@@ -44,11 +40,16 @@ for s in stores:
 
 # lambda = time vs money preference (lower lamba = money is more important)
 # 0.0 < lambda_val < 5.0
-lambda_val = 5.0
+lambda_val = 0.0
+
+# add a tiny epsilon value (1e-5) to the travel time penalty
+# when lambda = 0, the solver is forced to set unused store variables (y) to 0 to reduces the score
+epsilon = 1e-5
+adjusted_travel_penalty = (lambda_val + epsilon)
 
 prob += (
     pulp.lpSum(prices[i, s] * x[i, s] for i in items for s in stores) + 
-    lambda_val * pulp.lpSum(travel_times[s] * y[s] for s in stores)
+    adjusted_travel_penalty * pulp.lpSum(travel_times[s] * y[s] for s in stores)
 )
 
 status = prob.solve(pulp.PULP_CBC_CMD(msg=False))
