@@ -1,24 +1,17 @@
-# Save this as optimizer_prototype.py
+import json
 import pulp
 
-# 1. Setup Mock Data
-stores = ['Target', 'Trader Joe\'s', 'Whole Foods']
-items = ['milk', 'eggs', 'bread', 'bananas', 'tofu']
+with open('inventory.json', 'r') as f:
+    data = json.load(f)
 
-travel_times = {
-    'Target': 10,
-    'Trader Joe\'s': 5,
-    'Whole Foods': 11
-}
+stores = [store['name'] for store in data['stores']]
+travel_times = {store['name']: store['travel_time'] for store in data['stores']}
 
-# Row = Item, Column = Store Price
-prices = {
-    ('milk', 'Target'): 1.79,  ('milk', 'Trader Joe\'s'): 5.99, ('milk', 'Whole Foods'): 2.79,
-    ('eggs', 'Target'): 1.59,  ('eggs', 'Trader Joe\'s'): 6.99, ('eggs', 'Whole Foods'): 4.49,
-    ('bread', 'Target'): 1.99, ('bread', 'Trader Joe\'s'): 4.49, ('bread', 'Whole Foods'): 3.69,
-    ('bananas', 'Target'): 0.39, ('bananas', 'Trader Joe\'s'): 0.29, ('bananas', 'Whole Foods'): 0.69,
-    ('tofu', 'Target'): 3.59, ('tofu', 'Trader Joe\'s'): 2.49, ('tofu', 'Whole Foods'): 2.99
-}
+prices = {}
+items = list(data['prices'].keys())
+for item, store_mappings in data['prices'].items():
+    for store_name, price in store_mappings.items():
+        prices[(item, store_name)] = price
 
 prob = pulp.LpProblem("Grocery_Optimization", pulp.LpMinimize)
 

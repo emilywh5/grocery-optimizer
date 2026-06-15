@@ -1,0 +1,15 @@
+{
+  "stores": [
+    {"name": "Target", "travel_time": 10},
+    {"name": "Trader Joe's", "travel_time": 5},
+    {"name": "Whole Foods", "travel_time": 11},
+    {"name": "Mariano's", "travel_time": 20}
+  ],
+  "prices": {
+    "milk": {"Target": 1.79, "Trader Joe's": 5.99, "Whole Foods": 2.79, "Mariano's": 2.39},
+    "eggs": {"Target": 1.59, "Trader Joe's": 6.99, "Whole Foods": 4.49, "Mariano's": 1.99},
+    "bread": {"Target": 1.99, "Trader Joe's": 4.49, "Whole Foods": 3.69, "Mariano's": 3.49},
+    "bananas": {"Target": 0.39, "Trader Joe's": 0.29, "Whole Foods": 0.69, "Mariano's": 0.28},
+    "tofu": {"Target": 3.59, "Trader Joe's": 2.49, "Whole Foods": 2.99, "Mariano's": 2.69}
+  }
+}
