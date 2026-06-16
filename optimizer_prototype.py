@@ -1,17 +1,41 @@
 import json
 import pulp
+from entity_matcher import resolve_product
 
+# setup master catalog
+MASTER_PRODUCTS = ["milk", "eggs", "bread", "bananas", "tofu"]
+CONFIDENCE_THRESHOLD = 75.0
+
+# data ingestion & fuzzy resolution
 with open('inventory.json', 'r') as f:
     data = json.load(f)
+
 
 stores = [store['name'] for store in data['stores']]
 travel_times = {store['name']: store['travel_time'] for store in data['stores']}
 
 prices = {}
-items = list(data['prices'].keys())
-for item, store_mappings in data['prices'].items():
-    for store_name, price in store_mappings.items():
-        prices[(item, store_name)] = price
+resolved_items = set()
+
+print("Ingesting & Resolving Scraped Inventory")
+print("-" * 50)
+
+for item in data['scraped_inventory']:
+    store_name = item['store']
+    raw_name = item['raw_name']
+    price = item['price']
+
+    clean_product_key = resolve_product(raw_name, MASTER_PRODUCTS, CONFIDENCE_THRESHOLD)
+
+    if clean_product_key:
+        prices[(clean_product_key, store_name)] = price
+        resolved_items.add(clean_product_key)
+        print(f"Mapped: '{raw_name}'\n        -> [{clean_product_key.upper()}] at {store_name} for ${price}")
+    else:
+        print(f"Skipped (Unmapped): '{raw_name}' at {store_name}")
+    print("-" * 50)
+
+items = sorted(list(resolved_items))
 
 prob = pulp.LpProblem("Grocery_Optimization", pulp.LpMinimize)
 
@@ -33,7 +57,7 @@ for s in stores:
 
 # lambda = time vs money preference (lower lamba = money is more important)
 # 0.0 < lambda_val < 5.0
-lambda_val = 0.0
+lambda_val = 2.5
 
 # add a tiny epsilon value (1e-5) to the travel time penalty
 # when lambda = 0, the solver is forced to set unused store variables (y) to 0 to reduces the score

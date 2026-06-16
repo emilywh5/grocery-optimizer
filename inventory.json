@@ -2,14 +2,25 @@
   "stores": [
     {"name": "Target", "travel_time": 10},
     {"name": "Trader Joe's", "travel_time": 5},
-    {"name": "Whole Foods", "travel_time": 11},
-    {"name": "Mariano's", "travel_time": 20}
+    {"name": "Whole Foods", "travel_time": 11}
   ],
-  "prices": {
-    "milk": {"Target": 1.79, "Trader Joe's": 5.99, "Whole Foods": 2.79, "Mariano's": 2.39},
-    "eggs": {"Target": 1.59, "Trader Joe's": 6.99, "Whole Foods": 4.49, "Mariano's": 1.99},
-    "bread": {"Target": 1.99, "Trader Joe's": 4.49, "Whole Foods": 3.69, "Mariano's": 3.49},
-    "bananas": {"Target": 0.39, "Trader Joe's": 0.29, "Whole Foods": 0.69, "Mariano's": 0.28},
-    "tofu": {"Target": 3.59, "Trader Joe's": 2.49, "Whole Foods": 2.99, "Mariano's": 2.69}
-  }
+  "scraped_inventory": [
+    {"store": "Target", "raw_name": "2% Reduced Fat Milk", "price": 1.79},
+    {"store": "Target", "raw_name": "Grade A Large White Eggs - 12ct", "price": 1.59},
+    {"store": "Target", "raw_name": "Honey Wheat Sandwich Bread", "price": 1.99},
+    {"store": "Target", "raw_name": "Banana Conventional, 1 Each", "price": 0.39},
+    {"store": "Target", "raw_name": "Organic Tofu Extra Firm", "price": 3.59},
+
+    {"store": "Trader Joe's", "raw_name": "Trader Joe's Whole Milk Half Gal", "price": 5.99},
+    {"store": "Trader Joe's", "raw_name": "Organic Brown Eggs 12-Pack", "price": 6.99},
+    {"store": "Trader Joe's", "raw_name": "Organic Sliced Wheat Bread", "price": 4.49},
+    {"store": "Trader Joe's", "raw_name": "Bananas Org Bag", "price": 0.29},
+    {"store": "Trader Joe's", "raw_name": "Organic Tofu", "price": 2.49},
+
+    {"store": "Whole Foods", "raw_name": "365 Organic Whole Milk", "price": 2.79},
+    {"store": "Whole Foods", "raw_name": "Pasture-Raised Large Eggs", "price": 4.49},
+    {"store": "Whole Foods", "raw_name": "365 Organic Whole Wheat Bread, 20 OZ", "price": 3.69},
+    {"store": "Whole Foods", "raw_name": "Organic Banana Individual", "price": 0.69},
+    {"store": "Whole Foods", "raw_name": "Sprouted Tofu Extra Firm 14oz", "price": 2.99}
+  ]
 }
