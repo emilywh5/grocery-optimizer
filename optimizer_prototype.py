@@ -1,39 +1,76 @@
-import json
+import os
+import psycopg2
 import pulp
 from entity_matcher import resolve_product
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_CONFIG = {
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT")
+}
 
 # setup master catalog
 MASTER_PRODUCTS = ["milk", "eggs", "bread", "bananas", "tofu"]
 CONFIDENCE_THRESHOLD = 75.0
 
-# data ingestion & fuzzy resolution
-with open('inventory.json', 'r') as f:
-    data = json.load(f)
-
-
-stores = [store['name'] for store in data['stores']]
-travel_times = {store['name']: store['travel_time'] for store in data['stores']}
-
+stores = []
+travel_times = {}
 prices = {}
 resolved_items = set()
 
-print("Ingesting & Resolving Scraped Inventory")
-print("-" * 50)
+conn = None
+cur = None
 
-for item in data['scraped_inventory']:
-    store_name = item['store']
-    raw_name = item['raw_name']
-    price = item['price']
+try:
+    print("Connecting to PostgreSQL database")
+    conn = psycopg2.connect(**DB_CONFIG)
+    cur = conn.cursor()
 
-    clean_product_key = resolve_product(raw_name, MASTER_PRODUCTS, CONFIDENCE_THRESHOLD)
+    print("Querying store profiles")
+    cur.execute("SELECT name, travel_time FROM stores;")
+    store_rows = cur.fetchall()
+    for row in store_rows:
+        store_name, travel_time = row
+        stores.append(store_name)
+        travel_times[store_name] = travel_time
 
-    if clean_product_key:
-        prices[(clean_product_key, store_name)] = price
-        resolved_items.add(clean_product_key)
-        print(f"Mapped: '{raw_name}'\n        -> [{clean_product_key.upper()}] at {store_name} for ${price}")
-    else:
-        print(f"Skipped (Unmapped): '{raw_name}' at {store_name}")
-    print("-" * 50)
+    print("Querying scraped inventory records")
+    cur.execute("""
+        SELECT s.name, si.raw_name, si.price
+        FROM scraped_inventory si
+        JOIN stores s ON si.store_id = s.id;        
+    """)
+    inventory_rows = cur.fetchall()
+
+    print("\nProcessing & Matching Ingested Data:")
+    print("-" * 60)
+    for row in inventory_rows:
+        store_name, raw_name, price = row
+        price = float(price)
+
+        clean_product_key = resolve_product(raw_name, MASTER_PRODUCTS, CONFIDENCE_THRESHOLD)
+
+        if clean_product_key:
+            prices[(clean_product_key, store_name)] = price
+            resolved_items.add(clean_product_key)
+            print(f"Mapped: '{raw_name}'\n        -> [{clean_product_key.upper()}] at {store_name} for ${price}")
+        else:
+            print(f"Skipped (Unmapped): '{raw_name}' at {store_name}")
+        print("-" * 60)
+except psycopg2.DatabaseError as error:
+    print(f"Database connection error: {error}")
+    raise SystemExit
+finally:
+    if cur:
+        cur.close()
+    if conn:
+        conn.close()
+        print("Database connection closed safely")
 
 items = sorted(list(resolved_items))
 
