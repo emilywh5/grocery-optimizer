@@ -146,6 +146,9 @@ is_live, raw_stores_df, inventory_df = load_grocery_data()
 
 stores_df = raw_stores_df.copy()
 
+stores_df["id"] = stores_df["id"].astype(int)
+inventory_df["store_id"] = inventory_df["store_id"].astype(int)
+
 def run_optimization(selected_items, lambda_weight, stores, inventory):
     """
     Resolves products using fuzzy matching and solved the MILP routing problem.
