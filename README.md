@@ -79,8 +79,7 @@ The engine formulates the routing challenge as a **Multi‑Objective Mixed‑Int
 
 $$
 \text{Minimize } 
-\sum_{i \in I} \sum_{s \in S} c_{is} x_{is}
-+ (\lambda + \epsilon)\sum_{s \in S} t_s y_s
+\sum_{i \in I} \sum_{s \in S} c_{is} x_{is} + (\lambda + \epsilon)\sum_{s \in S} t_s y_s
 $$
 
 **Fulfillment Constraint**
